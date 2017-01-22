@@ -1,12 +1,14 @@
 //
-//  DotEngine.h
-//  DotEngine
+//  DotEngineKit.h
+//  DotEngineKit
 //
 //  Created by xiang on 6/23/16.
 //  Copyright © 2016 dotEngine. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
+
+@import AVFoundation;
 
 typedef NS_ENUM(NSInteger, DotEngineVideoProfile)
 {
@@ -49,9 +51,6 @@ typedef NS_ENUM(NSInteger, DotEngineVideoProfile)
 
 
 
-
-
-
 typedef NS_ENUM(NSInteger, DotEngineRenderMode) {
     DotEngine_RenderResize = 0,
     DotEngine_RenderResizeAspect = 1,
@@ -63,7 +62,6 @@ typedef NS_ENUM(NSInteger, DotEngineRenderMode) {
 
 typedef NS_ENUM(NSInteger,DotEngineWarnCode){
     DotEngine_Warn_RoomIsFull   = 0,
-    
 
 };
 
@@ -79,6 +77,9 @@ typedef NS_ENUM(NSInteger, DotEngineErrorCode) {
     DotEngine_Error_TokenExpire =  6,
     DotEngine_Error_TokenError = 7,
     DotEngine_Error_AccountDisableError = 8,
+    DotEngine_Error_MediaPermissionRefused = 9,
+    DotEngine_Error_ServerError = 10,
+    DotEngine_Error_RoomFullError = 11,
     
 };
 
@@ -94,34 +95,169 @@ typedef NS_ENUM(NSUInteger,DotEngineLogLevel){
 
 
 
+typedef NS_ENUM(NSInteger,DotEngineCaptureMode){
+    
+    DotEngine_Capture_Default,
+    DotEngine_Capture_Custom_Video,
+    DotEngine_Capture_Custom_Video_Audio
+
+};
+
+
+typedef NS_ENUM(int, VideoRotation){
+    
+    VideoRoation_0 = 0,
+    VideoRoation_90 = 90,
+    VideoRoation_180 = 180,
+    VideoRoation_270 = 270
+    
+};
+
+
+
+
+@interface DotEngineAudioFrame : NSObject
+
+@property(nonatomic, readonly ,nullable)  int16_t *data;
+@property(nonatomic, readonly) size_t samples_per_channel;
+@property(nonatomic, readonly) int sample_rate;
+@property(nonatomic, readonly) size_t channels;
+@property(nonatomic, readonly) int  bits_per_sample;
+
+@end
+
+
+@interface DotEngineVideoFrame : NSObject
+
+/** width without rotation applied. */
+@property(nonatomic, readonly) size_t width;
+
+/** Height without rotation applied. */
+@property(nonatomic, readonly) size_t height;
+
+// These can return NULL if the object is not backed by a buffer.
+@property(nonatomic, readonly, nullable) const uint8_t *yPlane;
+@property(nonatomic, readonly, nullable) const uint8_t *uPlane;
+@property(nonatomic, readonly, nullable) const uint8_t *vPlane;
+@property(nonatomic, readonly) int32_t yPitch;
+@property(nonatomic, readonly) int32_t uPitch;
+@property(nonatomic, readonly) int32_t vPitch;
+
+@property(nonatomic, readonly) int rotation;
+
+
+@end
+
+
+
+
+
+
+
+
 @protocol  DotEngineDelegate;
 
 
-@interface DOTEngine : NSObject
+@interface DotEngine : NSObject
+
+
+@property (nonatomic, weak) id<DotEngineDelegate> delegate;
+
+
+@property (nonatomic, readonly) BOOL  isJoined;
+
+@property (nonatomic, readonly) BOOL  isSetupLocalMedia;
+
 
 
 
 /**
- *  实例化一个实例
+ instance with  delegate
+
+ @param delegate <#delegate description#>
+
+ @return <#return value description#>
+ */
++ (instancetype _Nonnull)sharedInstanceWithDelegate:(id<DotEngineDelegate>)delegate;
+
+
+
+
+/**
+ 
+ return instance
+
+ @return <#return value description#>
+ */
++ (instancetype _Nonnull)sharedInstance;
+
+
+/**
+ 
+ start audio and video
+ 
+ */
+-(void)startLocalMedia;
+
+
+/**
+ start only audio
+ */
+
+//-(void)startLocalAudio;
+
+
+/**
+ start only video 
+ */
+
+//-(void)startLocalVideo;
+
+
+/**
+ stop local media
+ */
+-(void)stopLocalMedia;
+
+
+
+
+
+/**
+ *  join room  with  token
  *
- *  @param delegate
- *
- *  @return
+ *  @param token got from server side,
  */
-+ (instancetype)sharedInstanceWithDelegate:(id<DotEngineDelegate>)delegate;
+-(void)joinRoomWithToken:(NSString*)token;
+
 
 
 
 /**
- *  开启视频预览
+ *  leave room
  */
--(void)startPreview;
+-(void)leaveRoom;
+
+
 
 
 /**
- *  关闭预览
+ <#Description#>
+ 
+ @param profile profile description
  */
--(void)stopPreview;
+-(void)setupVideoProfile:(DotEngineVideoProfile)profile;
+
+
+
+/**
+ <#Description#>
+ 
+ @param captureMode captureMode description
+ */
+-(void)setCaptureMode:(DotEngineCaptureMode)captureMode;
+
+
 
 
 
@@ -184,43 +320,40 @@ typedef NS_ENUM(NSUInteger,DotEngineLogLevel){
 
 
 
-
 /**
- *  加入房间
- *
- *  @param room
- *  @param userId
- *  @param token
+ <#Description#>
+
+ @param appkey     <#appkey description#>
+ @param appsecret  <#appsecret description#>
+ @param room       <#room description#>
+ @param userid     <#userid description#>
+ @param tokenBlock <#tokenBlock description#>
  */
-
--(void)joinRoom:(NSString*)room userId:(NSString*)userId token:(NSString*)token;
-
-
-
-
-/**
- *  加入房间
- *
- *  @param token 从服务端获取的token
- */
--(void)joinRoomWithToken:(NSString*)token;
-
+-(void)generateTestTokenWithAppKey:( NSString* _Nonnull )appkey
+                         appsecret:(NSString* _Nonnull )appsecret
+                              room:(NSString* _Nonnull )room
+                            userId:(NSString* _Nonnull )userid
+                         withBlock:(void (^)(NSString* token,NSError* error))tokenBlock;
 
 
 
 /**
- *  离开房间
+ <#Description#>
+
+ @param sample_buffer sample_buffer description
  */
--(void)leaveRoom;
+-(void) sendSampleBuffer:(CMSampleBufferRef ) sampleBuffer;
 
 
 
 
-/*
- 设置视频的质量
+/**
+ <#Description#>
+
+ @param pixelBuffer <#pixelBuffer description#>
+ @param rotation    <#rotation description#>
  */
--(void)setupVideoProfile:(DotEngineVideoProfile)profile;
-
+-(void) sendPixelBuffer:(CVPixelBufferRef)pixelBuffer rotation:(VideoRotation)rotation;
 
 
 
@@ -229,8 +362,8 @@ typedef NS_ENUM(NSUInteger,DotEngineLogLevel){
 
 
 
-@protocol DotEngineDelegate <NSObject>
 
+@protocol DotEngineDelegate <NSObject>
 
 /**
  *  用户加入房间   包括自己
@@ -238,7 +371,7 @@ typedef NS_ENUM(NSUInteger,DotEngineLogLevel){
  *  @param engine
  *  @param userId 用户id
  */
--(void)dotEngine:(DOTEngine*) engine didJoined:(NSString*)userId;
+-(void)dotEngine:(DotEngine*) engine didJoined:(NSString*)userId;
 
 
 /**
@@ -247,60 +380,94 @@ typedef NS_ENUM(NSUInteger,DotEngineLogLevel){
  *  @param engine <#engine description#>
  *  @param userId <#userId description#>
  */
--(void)dotEngine:(DOTEngine*) engine didLeave:(NSString*)userId;
-
-
-
-/**
- *  发生错误了
- *
- *  @param engine    <#engine description#>
- *  @param errorCode <#errorCode description#>
- */
--(void)dotEngine:(DOTEngine*) engine didOccurError:(int)errorCode;
-
-
-/**
- *  有一个视图被移除
- *
- *  @param engine <#engine description#>
- *  @param view   <#view description#>
- *  @param userId 当前view 对应的用户
- */
--(void)dotEngine:(DOTEngine*) engine didRemoveView:(UIView*)view withUser:(NSString*)userId;
+-(void)dotEngine:(DotEngine*) engine didLeave:(NSString*)userId;
 
 
 
 
 /**
- *  有一个视图加入
- *
- *  @param engine <#engine description#>
- *  @param view   <#view description#>
- *  @param userId <#userId description#>
+ <#Description#>
+ 
+ @param engine <#engine description#>
+ @param view   <#view description#>
  */
--(void)dotEngine:(DOTEngine*) engine  didAddView:(UIView*)view withUser:(NSString*)userId;
+-(void)dotEngine:(DotEngine*) engine  didAddLocalView:(UIView*)view;
 
 
 
 /**
- *  对应用户的stream被添加
- *  不必必须实现,为音频模式设计
- *
- *  @param engine <#engine description#>
- *  @param userId <#userId description#>
+ <#Description#>
+ 
+ @param engine <#engine description#>
+ @param view   <#view description#>
+ @param userId <#userId description#>
  */
--(void)dotEngine:(DOTEngine *)engine didAddStream:(NSString*)userId;
+-(void)dotEngine:(DotEngine*) engine  didAddRemoteView:(UIView*)view withUser:(NSString*)userId;
+
+
+/**
+ <#Description#>
+
+ @param engine <#engine description#>
+ @param view   <#view description#>
+ */
+-(void)dotEngine:(DotEngine*) engine didRemoveLocalView:(UIView*)view;
 
 
 
 /**
- *  对应用户的stream被删除
- *  不必必须实现,为音频模式设计
- *  @param engine <#engine description#>
- *  @param userId <#userId description#>
+ <#Description#>
+
+ @param engine <#engine description#>
+ @param view   <#view description#>
+ @param userId <#userId description#>
  */
--(void)dotEngine:(DOTEngine *)engine didRemoveStream:(NSString*)userId;
+-(void)dotEngine:(DotEngine*) engine didRemoveRemoteView:(UIView*)view withUser:(NSString*)userId;
+
+
+
+
+
+/**
+ 本地audio track ready
+ */
+@optional
+-(void)dotEngineDidAddLocalAudioTrack;
+
+
+
+/**
+ <#Description#>
+
+ @param engine <#engine description#>
+ @param userId <#userId description#>
+ */
+@optional
+-(void)dotEngine:(DotEngine *)engine didAddRemoteAudioTrack:(NSString*)userId;
+
+
+
+/**
+ <#Description#>
+ */
+@optional
+-(void)dotEngineDidRemoveLocalAudioTrack;
+
+
+
+
+/**
+ <#Description#>
+
+ @param engine <#engine description#>
+ @param userId <#userId description#>
+ */
+@optional
+-(void)dotEngine:(DotEngine *)engine  didRemoveRemoteAudioTrack:(NSString *)userId;
+
+
+
+
 
 
 
@@ -312,7 +479,7 @@ typedef NS_ENUM(NSUInteger,DotEngineLogLevel){
  *  @param muted  <#muted description#>
  *  @param userId <#userId description#>
  */
--(void)dotEngine:(DOTEngine*)engine didEnableAudio:(BOOL)enable userId:(NSString*)userId;
+-(void)dotEngine:(DotEngine*)engine didEnableAudio:(BOOL)enable userId:(NSString*)userId;
 
 
 
@@ -323,8 +490,68 @@ typedef NS_ENUM(NSUInteger,DotEngineLogLevel){
  *  @param enable <#enable description#>
  *  @param userId <#userId description#>
  */
--(void)dotEngine:(DOTEngine*)engine didEnableVideo:(BOOL)enable userId:(NSString*)userId;
+-(void)dotEngine:(DotEngine*)engine didEnableVideo:(BOOL)enable userId:(NSString*)userId;
 
+
+
+/**
+ *  发生错误了
+ *
+ *  @param engine    <#engine description#>
+ *  @param errorCode <#errorCode description#>
+ */
+-(void)dotEngine:(DotEngine*) engine didOccurError:(DotEngineErrorCode)errorCode;
+
+
+
+
+# pragma 
+
+/**
+ *
+ *  capture mode  分为三类    1, default   dotEngine处理音频和视频的输入   2, custom_video   用户处理视频输入 dotEngine处理音频输入
+ *                           3, custom_audio_video   用户处理和视频的输入
+ */
+
+
+
+/**
+ 视频view 默认被添加到parent view 之后才会渲染 否则 做丢弃处理   add a new renderer or  based the view renderer
+ 
+ audio
+ 
+ onLocalAudioFrame
+ 
+ onRemoteAudioFrame
+ 
+ 
+ video
+ 
+ onLocalVideoFrame
+ 
+ onRemoteVideoFrame
+ 
+ */
+
+
+
+@optional
+-(void)dotEngine:(DotEngine*)engine onLocalAudioFrame:(DotEngineAudioFrame*)frame;
+
+
+
+@optional
+-(void)dotEngine:(DotEngine*)engine onRemoteAudioFrame:(DotEngineAudioFrame*)frame userId:(NSString*)userId;
+
+
+
+
+@optional
+-(void)dotEngine:(DotEngine*)engine onLocalVideoFrame:(DotEngineVideoFrame*)frame;
+
+
+@optional
+-(void)dotEngine:(DotEngine*)engine onRemoteVideoFrame:(DotEngineVideoFrame*)frame userId:(NSString*)userId;
 
 
 @end
