@@ -10,6 +10,8 @@
 #import <AFNetworking.h>
 #import <UIView+Toast.h>
 
+#import <GPUImage.h>
+#import <DotGPUImageBeautyFilter.h>
 
 #import <DOTEngine.h>
 
@@ -29,6 +31,10 @@
     
     BOOL    speekerPhoneMode;
     BOOL    videoMode;
+    
+    
+    GPUImageView  *cameraView;
+    GPUImageVideoCamera *videoCamera;
     
 }
 
@@ -52,6 +58,8 @@
 static  NSString*  APP_KEY = @"45";
 static  NSString*  APP_SECRET = @"dc5cabddba054ffe894ba79c2910866c";
 static  NSString*  ROOM = @"dotcc";
+
+static  BOOL    USE_CUSTOM_CAPTURE_MODE = true;
 
 
 @implementation ViewController
@@ -82,18 +90,22 @@ static  NSString*  ROOM = @"dotcc";
     
     [self hideMenuButtons];
     
+    if (USE_CUSTOM_CAPTURE_MODE) { // 这里需要注意
+        
+        [self.dotEngine setCaptureMode:DotEngine_Capture_Custom_Video];
+    }
+    
 }
 
 
 
 -(BOOL)prefersStatusBarHidden{
     
-    return YES;
+    return NO;
 }
 
 
 -(void)showMenuButtons{
-    
     
     self.muteAudioButton.hidden = NO;
     self.speekerModeButton.hidden = NO;
@@ -105,13 +117,10 @@ static  NSString*  ROOM = @"dotcc";
 
 -(void)hideMenuButtons{
     
-    
     self.muteAudioButton.hidden = YES;
     self.speekerModeButton.hidden = YES;
     self.previewButton.hidden = YES;
     self.cameraSwitchButton.hidden = YES;
-    
-    
 }
 
 
@@ -122,9 +131,102 @@ static  NSString*  ROOM = @"dotcc";
     [super viewWillLayoutSubviews];
     
     [self layoutVideoViews];
+}
+
+
+-(void) startLocalMedia
+{
+    
+    if(!USE_CUSTOM_CAPTURE_MODE){
+        
+        [self.dotEngine startLocalMedia];
+        
+    } else {
+        
+        
+        videoCamera = [[GPUImageVideoCamera alloc] initWithSessionPreset:AVCaptureSessionPreset640x480 cameraPosition:AVCaptureDevicePositionFront];
+        videoCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
+        
+        videoCamera.horizontallyMirrorFrontFacingCamera = YES;
+        
+        videoCamera.frameRate = 15;
+        
+        DotGPUImageBeautyFilter *filter = [[DotGPUImageBeautyFilter alloc] init];
+        
+        filter.toneLevel = 0.5;  // 红润
+        filter.beautyLevel = 0.5; // 美颜
+        filter.brightLevel = 0.5;  // 亮度
+        
+        float halfWidth = self.view.frame.size.width / 2;
+        
+        cameraView = [[GPUImageView alloc] initWithFrame:CGRectMake(0, halfWidth, halfWidth, halfWidth)];
+        
+        GPUImageCropFilter *cropfilter = [[GPUImageCropFilter alloc] initWithCropRegion:CGRectMake(0, 0, 1, 0.75)];
+
+        int outWidth = 320;
+        int outHeight = 320;
+        
+        GPUImageRawDataOutput *outfilter = [[GPUImageRawDataOutput alloc] initWithImageSize:CGSizeMake(outWidth, outHeight) resultsInBGRAFormat:YES];
+        
+        [videoCamera addTarget:cropfilter];
+        [cropfilter addTarget:filter];
+        
+        [filter addTarget:cameraView];
+        
+        [filter addTarget:outfilter];
+        
+        __unsafe_unretained GPUImageRawDataOutput * weakOutput = outfilter;
+        
+        [outfilter setNewFrameAvailableBlock:^{
+            
+            [weakOutput lockFramebufferForReading];
+            
+            GLubyte *outputBytes = [weakOutput rawBytesForImage];
+            
+            CVPixelBufferRef pixelBufferCopy = NULL;
+            
+            CVPixelBufferCreate(kCFAllocatorDefault, outWidth, outHeight,
+                                kCVPixelFormatType_32BGRA, NULL, &pixelBufferCopy);
+            
+            CVPixelBufferLockBaseAddress(pixelBufferCopy, 0);
+            
+            uint8_t*  baseAddress = CVPixelBufferGetBaseAddress(pixelBufferCopy);
+            
+            memcpy(baseAddress, outputBytes, outWidth * outHeight *4);
+            
+            CVPixelBufferUnlockBaseAddress(pixelBufferCopy, 0);
+            
+            [self.dotEngine sendPixelBuffer:pixelBufferCopy rotation:VideoRoation_0];
+            
+            [weakOutput unlockFramebufferAfterReading];
+            
+            CVPixelBufferRelease(pixelBufferCopy);
+            
+        }];
+        
+        [videoCamera startCameraCapture];
+        
+        [self.view addSubview:cameraView];
+        
+    }
     
 }
 
+
+
+-(void) stopLocalMedia
+{
+    if(!USE_CUSTOM_CAPTURE_MODE){
+        
+        [self.dotEngine stopLocalMedia];
+        
+    } else {
+        
+        [videoCamera stopCameraCapture];
+        
+        [cameraView removeFromSuperview];
+    }
+}
 
 
 -(void)layoutVideoViews
@@ -193,8 +295,7 @@ static  NSString*  ROOM = @"dotcc";
     
     [self.dotEngine leaveRoom];
     
-    
-    [self.dotEngine stopLocalMedia];
+    [self stopLocalMedia];
     
     [self.joinButton setTitle:@"离开" forState:UIControlStateNormal];
     
@@ -226,7 +327,7 @@ static  NSString*  ROOM = @"dotcc";
 
 -(void)connectToRoom{
     
-    [self.dotEngine startLocalMedia];
+    [self startLocalMedia];
     
     [self.dotEngine joinRoomWithToken:_token];
     
@@ -406,6 +507,10 @@ static  NSString*  ROOM = @"dotcc";
     
     [self showMenuButtons];
     
+    if (USE_CUSTOM_CAPTURE_MODE) {
+        
+        return;
+    }
     
     _localVideoView = view;
     
