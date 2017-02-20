@@ -59,7 +59,7 @@ static  NSString*  APP_KEY = @"45";
 static  NSString*  APP_SECRET = @"dc5cabddba054ffe894ba79c2910866c";
 static  NSString*  ROOM = @"dotcc";
 
-static  BOOL    USE_CUSTOM_CAPTURE_MODE = true;
+static  BOOL    USE_CUSTOM_CAPTURE_MODE = false;
 
 
 @implementation ViewController
