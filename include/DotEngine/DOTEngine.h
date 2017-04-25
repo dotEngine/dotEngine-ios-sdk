@@ -51,15 +51,6 @@ typedef NS_ENUM(NSInteger, DotEngineVideoProfile)
 
 
 
-typedef NS_ENUM(NSInteger, DotEngineRenderMode) {
-    DotEngine_RenderResize = 0,
-    DotEngine_RenderResizeAspect = 1,
-    DotEngine_RenderResizeAspectFill = 2,
-    
-};
-
-
-
 typedef NS_ENUM(NSInteger,DotEngineWarnCode){
     DotEngine_Warn_RoomIsFull   = 0,
 
@@ -109,50 +100,27 @@ typedef NS_ENUM(int, VideoRotation){
     VideoRoation_0 = 0,
     VideoRoation_90 = 90,
     VideoRoation_180 = 180,
-    VideoRoation_270 = 270
+    VideoRoation_270 = 270,
     
 };
 
 
+typedef NS_ENUM(NSInteger, DotEngineStatus) {
+    DotEngineStatusReady,
+    DotEngineStatusConnected,
+    DotEngineStatusDisConnected,
+    DotEngineStatusError,
+};
 
 
-@interface DotEngineAudioFrame : NSObject
+@interface DotBitrateStat : NSObject
 
-@property(nonatomic, readonly ,nullable)  int16_t *data;
-@property(nonatomic, readonly) size_t samples_per_channel;
-@property(nonatomic, readonly) int sample_rate;
-@property(nonatomic, readonly) size_t channels;
-@property(nonatomic, readonly) int  bits_per_sample;
-
-@end
-
-
-@interface DotEngineVideoFrame : NSObject
-
-/** width without rotation applied. */
-@property(nonatomic, readonly) size_t width;
-
-/** Height without rotation applied. */
-@property(nonatomic, readonly) size_t height;
-
-// These can return NULL if the object is not backed by a buffer.
-@property(nonatomic, readonly, nullable) const uint8_t *yPlane;
-@property(nonatomic, readonly, nullable) const uint8_t *uPlane;
-@property(nonatomic, readonly, nullable) const uint8_t *vPlane;
-@property(nonatomic, readonly) int32_t yPitch;
-@property(nonatomic, readonly) int32_t uPitch;
-@property(nonatomic, readonly) int32_t vPitch;
-
-@property(nonatomic, readonly) int rotation;
-
+@property(nonatomic,assign) int  audioBitrateSend;
+@property(nonatomic,assign) int  audioBitrateReceive;
+@property(nonatomic,assign) int  videoBitrateSend;
+@property(nonatomic,assign) int  videoBitrateReceive;
 
 @end
-
-
-
-
-
-
 
 
 @protocol  DotEngineDelegate;
@@ -161,14 +129,12 @@ typedef NS_ENUM(int, VideoRotation){
 @interface DotEngine : NSObject
 
 
-@property (nonatomic, weak) id<DotEngineDelegate> delegate;
+@property (nonatomic, weak) id<DotEngineDelegate> _Nullable delegate;
 
 
-@property (nonatomic, readonly) BOOL  isJoined;
+@property (nonatomic, readonly) NSString* _Nullable localUserid;
 
-@property (nonatomic, readonly) BOOL  isSetupLocalMedia;
-
-
+@property (nonatomic, readonly) DotEngineStatus  status;
 
 
 /**
@@ -178,8 +144,7 @@ typedef NS_ENUM(int, VideoRotation){
 
  @return <#return value description#>
  */
-+ (instancetype _Nonnull)sharedInstanceWithDelegate:(id<DotEngineDelegate>)delegate;
-
++ (instancetype _Nonnull)sharedInstanceWithDelegate:(id<DotEngineDelegate> _Nonnull)delegate;
 
 
 
@@ -187,7 +152,7 @@ typedef NS_ENUM(int, VideoRotation){
  
  return instance
 
- @return <#return value description#>
+ @return return value description
  */
 + (instancetype _Nonnull)sharedInstance;
 
@@ -199,26 +164,10 @@ typedef NS_ENUM(int, VideoRotation){
  */
 -(void)startLocalMedia;
 
-
-/**
- start only audio
- */
-
-//-(void)startLocalAudio;
-
-
-/**
- start only video 
- */
-
-//-(void)startLocalVideo;
-
-
 /**
  stop local media
  */
 -(void)stopLocalMedia;
-
 
 
 
@@ -228,9 +177,47 @@ typedef NS_ENUM(int, VideoRotation){
  *
  *  @param token got from server side,
  */
--(void)joinRoomWithToken:(NSString*)token;
+-(void)joinRoomWithToken:(NSString* _Nonnull)token;
 
 
+
+/**
+ 
+ */
+-(void)publish;
+
+
+/**
+ <#Description#>
+
+ @param userId <#userId description#>
+ */
+-(void)subscribe:(NSString* _Nonnull)userId;
+
+
+
+
+/**
+ <#Description#>
+ */
+-(void)unpublish;
+
+
+
+/**
+ <#Description#>
+
+ @param userId <#userId description#>
+ */
+-(void)unsubcribe:(NSString* _Nonnull)userId;
+
+
+
+/**
+
+ @param enable <#enable description#>
+ */
+-(void) enableAutoSubscribe:(BOOL)enable;
 
 
 /**
@@ -239,15 +226,12 @@ typedef NS_ENUM(int, VideoRotation){
 -(void)leaveRoom;
 
 
-
-
 /**
  <#Description#>
  
  @param profile profile description
  */
 -(void)setupVideoProfile:(DotEngineVideoProfile)profile;
-
 
 
 /**
@@ -259,59 +243,25 @@ typedef NS_ENUM(int, VideoRotation){
 
 
 
-
-
 /**
- *  切换摄像头
+ *  switch camera
  */
 -(void)switchCamera;
 
 
 
 
-/**
- *  enable/disable 本地视频
- *
- *  @param enable true  or  false
- */
--(void)enableVideo:(BOOL)enable;
+
+-(void)muteLocalVideo:(BOOL)muted;
+
+
+
+-(void)muteLocalAudio:(BOOL)muted;
 
 
 
 /**
- *  enable/disable  本地音频
- *
- *  @param enable true or false
- */
--(void)enableAudio:(BOOL)enable;
-
-
-
-/**
- *  得到某个用户的音频状态
- *
- *  @param userId
- *
- *  @return true or  false
- */
--(BOOL)isAudioEnable:(NSString*)userId;
-
-
-
-/**
- *  得到某个用户的视频状态
- *
- *  @param userId
- *
- *  @return true or false
- */
--(BOOL)isVideoEnable:(NSString*)userId;
-
-
-
-
-/**
- *  开启/关闭扬声器
+ *  speakerphone  enable or disable
  *
  *  @param enable YES  NO
  */
@@ -320,8 +270,19 @@ typedef NS_ENUM(int, VideoRotation){
 
 
 
+
 /**
  <#Description#>
+
+ @param enable <#enable description#>
+ */
+-(void)enableAudioVolumeIndicate:(BOOL)enable;
+
+
+
+/**
+ 
+ use for test mode
 
  @param appkey     <#appkey description#>
  @param appsecret  <#appsecret description#>
@@ -333,7 +294,7 @@ typedef NS_ENUM(int, VideoRotation){
                          appsecret:(NSString* _Nonnull )appsecret
                               room:(NSString* _Nonnull )room
                             userId:(NSString* _Nonnull )userid
-                         withBlock:(void (^)(NSString* token,NSError* error))tokenBlock;
+                         withBlock:(void (^_Nonnull)(NSString* token,NSError* error))tokenBlock;
 
 
 
@@ -342,9 +303,7 @@ typedef NS_ENUM(int, VideoRotation){
 
  @param sample_buffer sample_buffer description
  */
--(void) sendSampleBuffer:(CMSampleBufferRef ) sampleBuffer;
-
-
+-(void) sendSampleBuffer:(CMSampleBufferRef _Nonnull) sampleBuffer;
 
 
 /**
@@ -353,7 +312,7 @@ typedef NS_ENUM(int, VideoRotation){
  @param pixelBuffer <#pixelBuffer description#>
  @param rotation    <#rotation description#>
  */
--(void) sendPixelBuffer:(CVPixelBufferRef)pixelBuffer rotation:(VideoRotation)rotation;
+-(void) sendPixelBuffer:(CVPixelBufferRef _Nonnull)pixelBuffer rotation:(VideoRotation)rotation;
 
 
 
@@ -371,7 +330,7 @@ typedef NS_ENUM(int, VideoRotation){
  *  @param engine
  *  @param userId 用户id
  */
--(void)dotEngine:(DotEngine*) engine didJoined:(NSString*)userId;
+-(void)dotEngine:(DotEngine* _Nonnull) engine didJoined:(NSString* _Nonnull)userId;
 
 
 /**
@@ -380,18 +339,17 @@ typedef NS_ENUM(int, VideoRotation){
  *  @param engine <#engine description#>
  *  @param userId <#userId description#>
  */
--(void)dotEngine:(DotEngine*) engine didLeave:(NSString*)userId;
-
+-(void)dotEngine:(DotEngine* _Nonnull) engine didLeave:(NSString* _Nonnull)userId;
 
 
 
 /**
  <#Description#>
  
- @param engine <#engine description#>
- @param view   <#view description#>
+ @param engine engine description
+ @param view   view description
  */
--(void)dotEngine:(DotEngine*) engine  didAddLocalView:(UIView*)view;
+-(void)dotEngine:(DotEngine* _Nonnull) engine  didAddLocalView:(UIView* _Nonnull)view;
 
 
 
@@ -402,7 +360,7 @@ typedef NS_ENUM(int, VideoRotation){
  @param view   <#view description#>
  @param userId <#userId description#>
  */
--(void)dotEngine:(DotEngine*) engine  didAddRemoteView:(UIView*)view withUser:(NSString*)userId;
+-(void)dotEngine:(DotEngine* _Nonnull) engine  didAddRemoteView:(UIView* _Nonnull)view withUser:(NSString*_Nonnull)userId;
 
 
 /**
@@ -411,7 +369,7 @@ typedef NS_ENUM(int, VideoRotation){
  @param engine <#engine description#>
  @param view   <#view description#>
  */
--(void)dotEngine:(DotEngine*) engine didRemoveLocalView:(UIView*)view;
+-(void)dotEngine:(DotEngine* _Nonnull) engine didRemoveLocalView:(UIView*)view;
 
 
 
@@ -422,7 +380,7 @@ typedef NS_ENUM(int, VideoRotation){
  @param view   <#view description#>
  @param userId <#userId description#>
  */
--(void)dotEngine:(DotEngine*) engine didRemoveRemoteView:(UIView*)view withUser:(NSString*)userId;
+-(void)dotEngine:(DotEngine* _Nonnull) engine didRemoveRemoteView:(UIView* _Nonnull )view withUser:(NSString*_Nonnull)userId;
 
 
 
@@ -439,11 +397,11 @@ typedef NS_ENUM(int, VideoRotation){
 /**
  <#Description#>
 
- @param engine <#engine description#>
- @param userId <#userId description#>
+ @param engine engine description
+ @param userId userId description
  */
 @optional
--(void)dotEngine:(DotEngine *)engine didAddRemoteAudioTrack:(NSString*)userId;
+-(void)dotEngine:(DotEngine * _Nonnull)engine didAddRemoteAudioTrack:(NSString*_Nonnull)userId;
 
 
 
@@ -463,35 +421,31 @@ typedef NS_ENUM(int, VideoRotation){
  @param userId <#userId description#>
  */
 @optional
--(void)dotEngine:(DotEngine *)engine  didRemoveRemoteAudioTrack:(NSString *)userId;
+-(void)dotEngine:(DotEngine * _Nonnull)engine  didRemoveRemoteAudioTrack:(NSString *)userId;
 
 
 
+-(void)dotEngine:(DotEngine * _Nonnull)engine didMutedLocalAudio:(BOOL)muted;
 
+
+-(void)dotEngine:(DotEngine * _Nonnull)engine didMutedLocalVideo:(BOOL)muted;
+
+
+-(void)dotEngine:(DotEngine * _Nonnull)engine didMutedRemoteAudio:(BOOL)muted userId:(NSString*)userId;
+
+
+-(void)dotEngine:(DotEngine * _Nonnull)engine didMutedRemoteVideo:(BOOL)muted userId:(NSString*)userId;
 
 
 
 
 /**
- *  用户静音/关闭静音回调
- *
- *  @param engine <#engine description#>
- *  @param muted  <#muted description#>
- *  @param userId <#userId description#>
+ receive some custome message from server;
+
+ @param engine  <#engine description#>
+ @param message <#message description#>
  */
--(void)dotEngine:(DotEngine*)engine didEnableAudio:(BOOL)enable userId:(NSString*)userId;
-
-
-
-/**
- *  用户开启/关闭视频回调
- *
- *  @param engine <#engine description#>
- *  @param enable <#enable description#>
- *  @param userId <#userId description#>
- */
--(void)dotEngine:(DotEngine*)engine didEnableVideo:(BOOL)enable userId:(NSString*)userId;
-
+-(void)dotEngine:(DotEngine* _Nonnull)engine didReceiveMessage:(NSString*_Nonnull )message;
 
 
 /**
@@ -500,58 +454,27 @@ typedef NS_ENUM(int, VideoRotation){
  *  @param engine    <#engine description#>
  *  @param errorCode <#errorCode description#>
  */
--(void)dotEngine:(DotEngine*) engine didOccurError:(DotEngineErrorCode)errorCode;
+-(void)dotEngine:(DotEngine* _Nonnull) engine didOccurError:(DotEngineErrorCode)errorCode;
 
 
 
-
-# pragma 
-
-/**
- *
- *  capture mode  分为三类    1, default   dotEngine处理音频和视频的输入   2, custom_video   用户处理视频输入 dotEngine处理音频输入
- *                           3, custom_audio_video   用户处理和视频的输入
- */
+-(void)dotEngine:(DotEngine * _Nonnull)engine didReceivePublishers:(NSArray<NSString*>* _Nullable)users;
 
 
-
-/**
- 视频view 默认被添加到parent view 之后才会渲染 否则 做丢弃处理   add a new renderer or  based the view renderer
- 
- audio
- 
- onLocalAudioFrame
- 
- onRemoteAudioFrame
- 
- 
- video
- 
- onLocalVideoFrame
- 
- onRemoteVideoFrame
- 
- */
+-(void)dotEngine:(DotEngine* _Nonnull)engine didAddPublishUser:(NSString* _Nonnull)userId;
 
 
-
-@optional
--(void)dotEngine:(DotEngine*)engine onLocalAudioFrame:(DotEngineAudioFrame*)frame;
+-(void)dotEngine:(DotEngine* _Nonnull)engine didPublicedUser:(NSString* _Nonnull)userId;
 
 
-
-@optional
--(void)dotEngine:(DotEngine*)engine onRemoteAudioFrame:(DotEngineAudioFrame*)frame userId:(NSString*)userId;
+-(void)dotEngine:(DotEngine* _Nonnull)engine didUnpublicedUser:(NSString* _Nonnull)userId;
 
 
+-(void)dotEngine:(DotEngine *_Nonnull)engine didSubscribedUser:(NSString* _Nonnull)userId;
 
 
-@optional
--(void)dotEngine:(DotEngine*)engine onLocalVideoFrame:(DotEngineVideoFrame*)frame;
+-(void)dotEngine:(DotEngine* _Nonnull)engine didGotAudioVolume:(float)volume  userId:(NSString* _Nonnull)userId;
 
-
-@optional
--(void)dotEngine:(DotEngine*)engine onRemoteVideoFrame:(DotEngineVideoFrame*)frame userId:(NSString*)userId;
-
+-(void)dotEngine:(DotEngine* _Nonnull)engine didGotBitrateStat:(DotBitrateStat* _Nonnull)stat userId:(NSString* _Nonnull)userId;
 
 @end
