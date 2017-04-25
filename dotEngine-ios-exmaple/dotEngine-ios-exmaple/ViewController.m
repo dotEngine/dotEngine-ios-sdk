@@ -32,10 +32,11 @@
     BOOL    speekerPhoneMode;
     BOOL    videoMode;
     
-    
     GPUImageView  *cameraView;
     GPUImageVideoCamera *videoCamera;
     
+    BOOL audioMuted;
+    BOOL videoMuted;
 }
 
 
@@ -77,9 +78,12 @@ static  BOOL    USE_CUSTOM_CAPTURE_MODE = false;
     
     connected = FALSE;
     
-    speekerPhoneMode = YES;
+    speekerPhoneMode = NO;
     
     videoMode = YES;
+    
+    audioMuted = FALSE;
+    videoMuted = FALSE;
     
     int randomNum = arc4random()  % 1000;
     
@@ -374,10 +378,12 @@ static  BOOL    USE_CUSTOM_CAPTURE_MODE = false;
 // 开启/关闭静音 只mute 自己
 - (IBAction)muteAudio:(id)sender {
     
-    BOOL muted = [self.dotEngine isAudioEnable:self.userId];
-    [self.dotEngine enableAudio:!muted];
-    muted = [self.dotEngine isAudioEnable:self.userId];
-    [self.view makeToast:[NSString stringWithFormat:@"mute auido %d",muted]];
+    
+    audioMuted = !audioMuted;
+    
+    [self.dotEngine muteLocalAudio:audioMuted];
+    
+    [self.view makeToast:[NSString stringWithFormat:@"mute auido %d",audioMuted]];
     
 }
 
@@ -398,17 +404,11 @@ static  BOOL    USE_CUSTOM_CAPTURE_MODE = false;
 // 视频mute/unmute 开关  先只mute 自己
 - (IBAction)preview:(id)sender {
     
-    BOOL muted = [self.dotEngine isVideoEnable:self.userId];
+    videoMuted = ! videoMuted;
     
+    [self.dotEngine muteLocalVideo:videoMuted];
     
-    [self.dotEngine  enableVideo:!muted];
-    
-    
-    muted = [self.dotEngine isVideoEnable:self.userId];
-    
-    [self.view makeToast:[NSString stringWithFormat:@"muted video"]];
-    
-    
+    [self.view makeToast:[NSString stringWithFormat:@"muted video %d", videoMuted]];
     
 }
 
@@ -584,49 +584,6 @@ static  BOOL    USE_CUSTOM_CAPTURE_MODE = false;
 }
 
 
-
-
-
-
--(void)dotEngine:(DotEngine *)engine didEnableVideo:(BOOL)enable userId:(NSString *)userId
-{
-    
-    NSLog(@"didEnableVideo");
-    
-    NSString* content;
-    
-    if ([userId isEqualToString:self.userId]) {
-        content = [NSString stringWithFormat:@"本地用户 %@  视频发生改变  %@",userId, enable? @"开启" : @"关闭"];
-    } else {
-        content = [NSString stringWithFormat:@"远程用户 %@ 视频发生改变 %@",userId, enable ? @"开启" : @"关闭"];
-    }
-    
-    [self.view makeToast:content];
-    
-    // 可以进行其他更多的操作  比如替换试图等操作
-}
-
-
-
--(void)dotEngine:(DotEngine *)engine didEnableAudio:(BOOL)enable userId:(NSString *)userId
-{
-    
-    NSLog(@"didEnableAudio");
-    
-    NSString* content;
-    
-    if ([userId isEqualToString:self.userId]) {
-        content = [NSString stringWithFormat:@"本地用户 %@  音频发生改变  %@",userId, enable? @"开启" : @"关闭"];
-    } else {
-        content = [NSString stringWithFormat:@"远程用户 %@  音频发生改变 %@",userId, enable ? @"开启" : @"关闭"];
-    }
-    
-    [self.view makeToast:content];
-    
-    
-    // 可以进行其他更多的操作  比如修改是否显示音频的状态
-    
-}
 
 
 

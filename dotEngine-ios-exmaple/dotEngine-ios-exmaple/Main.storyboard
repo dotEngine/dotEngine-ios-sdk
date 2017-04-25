@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11201" systemVersion="16B2555" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12118" systemVersion="16B2555" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11161"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12086"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -18,33 +22,29 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9AO-w8-rVt">
-                                <frame key="frameInset" minX="4" minY="369" width="60" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9AO-w8-rVt">
+                                <rect key="frame" x="24" y="369" width="31" height="30"/>
                                 <state key="normal" title="静音"/>
                                 <connections>
                                     <action selector="muteAudio:" destination="BYZ-38-t0r" eventType="touchUpInside" id="IFi-FD-mem"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="biz-qv-zOU">
-                                <frame key="frameInset" minX="78" minY="369" width="108" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="biz-qv-zOU">
+                                <rect key="frame" x="138.5" y="369" width="97" height="30"/>
                                 <state key="normal" title="视频关闭/开启"/>
                                 <connections>
                                     <action selector="preview:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Jra-Wp-Uuk"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="A5f-xF-GGs">
-                                <frame key="frameInset" minX="204" minY="369" width="94" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="A5f-xF-GGs">
+                                <rect key="frame" x="290" y="369" width="77" height="30"/>
                                 <state key="normal" title="切换摄像头"/>
                                 <connections>
                                     <action selector="cemaraSwitch:" destination="BYZ-38-t0r" eventType="touchUpInside" id="EH3-NA-aAb"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jl6-rk-SVt">
-                                <frame key="frameInset" minX="136" minY="469" width="84" height="39"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jl6-rk-SVt">
+                                <rect key="frame" x="145" y="606" width="84" height="34"/>
                                 <color key="backgroundColor" red="0.054282707253886064" green="0.054282707253886064" blue="0.054282707253886064" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <state key="normal" title="加入"/>
                                 <connections>
@@ -53,6 +53,15 @@
                             </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="biz-qv-zOU" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="8Tl-BC-Ze7"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="jl6-rk-SVt" secondAttribute="bottom" constant="27" id="KMB-ce-ulb"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="9AO-w8-rVt" secondAttribute="bottom" constant="268" id="NE8-B5-0sg"/>
+                            <constraint firstAttribute="trailing" secondItem="A5f-xF-GGs" secondAttribute="trailing" constant="8" id="SzQ-Nw-MKC"/>
+                            <constraint firstAttribute="bottomMargin" secondItem="biz-qv-zOU" secondAttribute="bottom" constant="268" id="TE6-cJ-ogM"/>
+                            <constraint firstItem="9AO-w8-rVt" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="8" id="rdd-aF-ewh"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="A5f-xF-GGs" secondAttribute="bottom" constant="268" id="wbB-gs-AW5"/>
+                        </constraints>
                     </view>
                     <connections>
                         <outlet property="cameraSwitchButton" destination="A5f-xF-GGs" id="ONH-T7-IeD"/>
