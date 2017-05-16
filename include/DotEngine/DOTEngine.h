@@ -106,11 +106,11 @@ typedef NS_ENUM(int, VideoRotation){
 
 
 typedef NS_ENUM(NSInteger, DotEngineStatus) {
-    DotEngineStatusReady,
+    DotEngineStatusConnecting,
     DotEngineStatusConnected,
     DotEngineStatusDisConnected,
-    DotEngineStatusError,
 };
+
 
 
 @interface DotBitrateStat : NSObject
@@ -181,44 +181,6 @@ typedef NS_ENUM(NSInteger, DotEngineStatus) {
 
 
 
-/**
- 
- */
--(void)publish;
-
-
-/**
- <#Description#>
-
- @param userId <#userId description#>
- */
--(void)subscribe:(NSString* _Nonnull)userId;
-
-
-
-
-/**
- <#Description#>
- */
--(void)unpublish;
-
-
-
-/**
- <#Description#>
-
- @param userId <#userId description#>
- */
--(void)unsubcribe:(NSString* _Nonnull)userId;
-
-
-
-/**
-
- @param enable <#enable description#>
- */
--(void) enableAutoSubscribe:(BOOL)enable;
-
 
 /**
  *  leave room
@@ -232,6 +194,15 @@ typedef NS_ENUM(NSInteger, DotEngineStatus) {
  @param profile profile description
  */
 -(void)setupVideoProfile:(DotEngineVideoProfile)profile;
+
+
+
+/**
+ <#Description#>
+
+ @param profile <#profile description#>
+ */
+//-(void)changeVideoProfile:(DotEngineVideoProfile)profile;
 
 
 /**
@@ -260,6 +231,12 @@ typedef NS_ENUM(NSInteger, DotEngineStatus) {
 
 
 
+-(void)muteRemoteVideo:(BOOL)muted  peerId:(NSString* _Nonnull)peerId;
+
+
+-(void)muteRemoteAudio:(BOOL)muted  peerId:(NSString* _Nonnull)peerId;
+
+
 /**
  *  speakerphone  enable or disable
  *
@@ -269,14 +246,6 @@ typedef NS_ENUM(NSInteger, DotEngineStatus) {
 -(void)enableSpeakerphone:(BOOL)enable;
 
 
-
-
-/**
- <#Description#>
-
- @param enable <#enable description#>
- */
--(void)enableAudioVolumeIndicate:(BOOL)enable;
 
 
 
@@ -315,7 +284,6 @@ typedef NS_ENUM(NSInteger, DotEngineStatus) {
 -(void) sendPixelBuffer:(CVPixelBufferRef _Nonnull)pixelBuffer rotation:(VideoRotation)rotation;
 
 
-
 @end
 
 
@@ -340,6 +308,21 @@ typedef NS_ENUM(NSInteger, DotEngineStatus) {
  *  @param userId <#userId description#>
  */
 -(void)dotEngine:(DotEngine* _Nonnull) engine didLeave:(NSString* _Nonnull)userId;
+
+
+
+
+
+// todo
+
+/**
+ <#Description#>
+
+ @param engine <#engine description#>
+ @param state <#state description#>
+ */
+-(void)dotEngine:(DotEngine* _Nonnull) engine  stateChange:(DotEngineStatus)state;
+
 
 
 
@@ -386,95 +369,30 @@ typedef NS_ENUM(NSInteger, DotEngineStatus) {
 
 
 
-/**
- 本地audio track ready
- */
-@optional
--(void)dotEngineDidAddLocalAudioTrack;
-
-
-
-/**
- <#Description#>
-
- @param engine engine description
- @param userId userId description
- */
-@optional
--(void)dotEngine:(DotEngine * _Nonnull)engine didAddRemoteAudioTrack:(NSString*_Nonnull)userId;
-
-
-
-/**
- <#Description#>
- */
-@optional
--(void)dotEngineDidRemoveLocalAudioTrack;
-
-
-
-
-/**
- <#Description#>
-
- @param engine <#engine description#>
- @param userId <#userId description#>
- */
-@optional
--(void)dotEngine:(DotEngine * _Nonnull)engine  didRemoveRemoteAudioTrack:(NSString *)userId;
-
-
-
 -(void)dotEngine:(DotEngine * _Nonnull)engine didMutedLocalAudio:(BOOL)muted;
 
 
 -(void)dotEngine:(DotEngine * _Nonnull)engine didMutedLocalVideo:(BOOL)muted;
 
 
--(void)dotEngine:(DotEngine * _Nonnull)engine didMutedRemoteAudio:(BOOL)muted userId:(NSString*)userId;
+-(void)dotEngine:(DotEngine * _Nonnull)engine didMutedRemoteAudio:(BOOL)muted userId:(NSString*)peerId;
 
 
--(void)dotEngine:(DotEngine * _Nonnull)engine didMutedRemoteVideo:(BOOL)muted userId:(NSString*)userId;
+-(void)dotEngine:(DotEngine * _Nonnull)engine didMutedRemoteVideo:(BOOL)muted userId:(NSString*)peerId;
 
 
-
-
-/**
- receive some custome message from server;
-
- @param engine  <#engine description#>
- @param message <#message description#>
- */
--(void)dotEngine:(DotEngine* _Nonnull)engine didReceiveMessage:(NSString*_Nonnull )message;
 
 
 /**
  *  发生错误了
  *
- *  @param engine    <#engine description#>
+ *  @param engine    engine description
  *  @param errorCode <#errorCode description#>
  */
 -(void)dotEngine:(DotEngine* _Nonnull) engine didOccurError:(DotEngineErrorCode)errorCode;
 
 
 
--(void)dotEngine:(DotEngine * _Nonnull)engine didReceivePublishers:(NSArray<NSString*>* _Nullable)users;
 
-
--(void)dotEngine:(DotEngine* _Nonnull)engine didAddPublishUser:(NSString* _Nonnull)userId;
-
-
--(void)dotEngine:(DotEngine* _Nonnull)engine didPublicedUser:(NSString* _Nonnull)userId;
-
-
--(void)dotEngine:(DotEngine* _Nonnull)engine didUnpublicedUser:(NSString* _Nonnull)userId;
-
-
--(void)dotEngine:(DotEngine *_Nonnull)engine didSubscribedUser:(NSString* _Nonnull)userId;
-
-
--(void)dotEngine:(DotEngine* _Nonnull)engine didGotAudioVolume:(float)volume  userId:(NSString* _Nonnull)userId;
-
--(void)dotEngine:(DotEngine* _Nonnull)engine didGotBitrateStat:(DotBitrateStat* _Nonnull)stat userId:(NSString* _Nonnull)userId;
 
 @end
