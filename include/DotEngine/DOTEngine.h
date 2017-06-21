@@ -7,10 +7,13 @@
 //
 
 #import <Foundation/Foundation.h>
-
 @import AVFoundation;
 
-typedef NS_ENUM(NSInteger, DotEngineVideoProfile)
+
+
+@class DotStream;
+
+typedef NS_ENUM(NSInteger)
 {
     
     DotEngine_VideoProfile_120P = 0,        // 160x120   15   80
@@ -47,7 +50,9 @@ typedef NS_ENUM(NSInteger, DotEngineVideoProfile)
     DotEngine_VideoProfile_720P_3 = 52,		// 1280x720  30   1700
     DotEngine_VideoProfile_720P_4 = 53,		// 720x1280  30   1700
     
-};
+} DotEngineVideoProfile;
+ 
+
 
 
 
@@ -95,20 +100,11 @@ typedef NS_ENUM(NSInteger,DotEngineCaptureMode){
 };
 
 
-typedef NS_ENUM(int, VideoRotation){
-    
-    VideoRoation_0 = 0,
-    VideoRoation_90 = 90,
-    VideoRoation_180 = 180,
-    VideoRoation_270 = 270,
-    
-};
 
-
-typedef NS_ENUM(NSInteger, DotEngineStatus) {
-    DotEngineStatusConnecting,
-    DotEngineStatusConnected,
-    DotEngineStatusDisConnected,
+typedef NS_ENUM(NSInteger, DotStatus) {
+    DotStatusConnecting,
+    DotStatusConnected,
+    DotStatusDisConnected,
 };
 
 
@@ -131,10 +127,9 @@ typedef NS_ENUM(NSInteger, DotEngineStatus) {
 
 @property (nonatomic, weak) id<DotEngineDelegate> _Nullable delegate;
 
-
 @property (nonatomic, readonly) NSString* _Nullable localUserid;
 
-@property (nonatomic, readonly) DotEngineStatus  status;
+@property (nonatomic, readonly) DotStatus  status;
 
 
 /**
@@ -147,7 +142,6 @@ typedef NS_ENUM(NSInteger, DotEngineStatus) {
 + (instancetype _Nonnull)sharedInstanceWithDelegate:(id<DotEngineDelegate> _Nonnull)delegate;
 
 
-
 /**
  
  return instance
@@ -158,17 +152,20 @@ typedef NS_ENUM(NSInteger, DotEngineStatus) {
 
 
 /**
- 
- start audio and video
- 
+ <#Description#>
+
+ @param stream stream description
  */
--(void)startLocalMedia;
+-(void)addStream:(DotStream* _Nonnull)stream;
+
+
 
 /**
- stop local media
- */
--(void)stopLocalMedia;
+ <#Description#>
 
+ @param stream <#stream description#>
+ */
+-(void)removeStream:(DotStream* _Nonnull)stream;
 
 
 
@@ -180,61 +177,10 @@ typedef NS_ENUM(NSInteger, DotEngineStatus) {
 -(void)joinRoomWithToken:(NSString* _Nonnull)token;
 
 
-
-
 /**
  *  leave room
  */
 -(void)leaveRoom;
-
-
-/**
- <#Description#>
- 
- @param profile profile description
- */
--(void)setupVideoProfile:(DotEngineVideoProfile)profile;
-
-
-
-/**
- <#Description#>
-
- @param profile <#profile description#>
- */
-//-(void)changeVideoProfile:(DotEngineVideoProfile)profile;
-
-
-/**
- <#Description#>
- 
- @param captureMode captureMode description
- */
--(void)setCaptureMode:(DotEngineCaptureMode)captureMode;
-
-
-
-/**
- *  switch camera
- */
--(void)switchCamera;
-
-
-
-
-
--(void)muteLocalVideo:(BOOL)muted;
-
-
-
--(void)muteLocalAudio:(BOOL)muted;
-
-
-
--(void)muteRemoteVideo:(BOOL)muted  peerId:(NSString* _Nonnull)peerId;
-
-
--(void)muteRemoteAudio:(BOOL)muted  peerId:(NSString* _Nonnull)peerId;
 
 
 /**
@@ -244,8 +190,6 @@ typedef NS_ENUM(NSInteger, DotEngineStatus) {
  */
 
 -(void)enableSpeakerphone:(BOOL)enable;
-
-
 
 
 
@@ -267,132 +211,34 @@ typedef NS_ENUM(NSInteger, DotEngineStatus) {
 
 
 
-/**
- <#Description#>
-
- @param sample_buffer sample_buffer description
- */
--(void) sendSampleBuffer:(CMSampleBufferRef _Nonnull) sampleBuffer;
-
-
-/**
- <#Description#>
-
- @param pixelBuffer <#pixelBuffer description#>
- @param rotation    <#rotation description#>
- */
--(void) sendPixelBuffer:(CVPixelBufferRef _Nonnull)pixelBuffer rotation:(VideoRotation)rotation;
-
-
 @end
-
-
 
 
 
 @protocol DotEngineDelegate <NSObject>
 
-/**
- *  用户加入房间   包括自己
- *
- *  @param engine
- *  @param userId 用户id
- */
--(void)dotEngine:(DotEngine* _Nonnull) engine didJoined:(NSString* _Nonnull)userId;
+
+-(void)dotEngine:(DotEngine* _Nonnull) engine didJoined:(NSString* _Nonnull)peerId;
+
+-(void)dotEngine:(DotEngine* _Nonnull) engine didLeave:(NSString* _Nonnull)peerId;
 
 
-/**
- *  有人离开了房间  包括自己
- *
- *  @param engine <#engine description#>
- *  @param userId <#userId description#>
- */
--(void)dotEngine:(DotEngine* _Nonnull) engine didLeave:(NSString* _Nonnull)userId;
+-(void)dotEngine:(DotEngine* _Nonnull) engine  stateChange:(DotStatus)state;
 
 
+-(void)dotEngine:(DotEngine* _Nonnull) engine didAddLocalStream:(DotStream* _Nonnull)stream;
 
 
-
-// todo
-
-/**
- <#Description#>
-
- @param engine <#engine description#>
- @param state <#state description#>
- */
--(void)dotEngine:(DotEngine* _Nonnull) engine  stateChange:(DotEngineStatus)state;
+-(void)dotEngine:(DotEngine* _Nonnull) engine didAddRemoteStream:(DotStream* _Nonnull)stream;
 
 
+-(void)dotEngine:(DotEngine* _Nonnull) engine didRemoveLocalStream:(DotStream* _Nonnull)stream;
 
 
-/**
- <#Description#>
- 
- @param engine engine description
- @param view   view description
- */
--(void)dotEngine:(DotEngine* _Nonnull) engine  didAddLocalView:(UIView* _Nonnull)view;
+-(void)dotEngine:(DotEngine* _Nonnull) engine didRemoveRemoteStream:(DotStream* _Nonnull) stream;
 
 
-
-/**
- <#Description#>
- 
- @param engine <#engine description#>
- @param view   <#view description#>
- @param userId <#userId description#>
- */
--(void)dotEngine:(DotEngine* _Nonnull) engine  didAddRemoteView:(UIView* _Nonnull)view withUser:(NSString*_Nonnull)userId;
-
-
-/**
- <#Description#>
-
- @param engine <#engine description#>
- @param view   <#view description#>
- */
--(void)dotEngine:(DotEngine* _Nonnull) engine didRemoveLocalView:(UIView*)view;
-
-
-
-/**
- <#Description#>
-
- @param engine <#engine description#>
- @param view   <#view description#>
- @param userId <#userId description#>
- */
--(void)dotEngine:(DotEngine* _Nonnull) engine didRemoveRemoteView:(UIView* _Nonnull )view withUser:(NSString*_Nonnull)userId;
-
-
-
-
-
--(void)dotEngine:(DotEngine * _Nonnull)engine didMutedLocalAudio:(BOOL)muted;
-
-
--(void)dotEngine:(DotEngine * _Nonnull)engine didMutedLocalVideo:(BOOL)muted;
-
-
--(void)dotEngine:(DotEngine * _Nonnull)engine didMutedRemoteAudio:(BOOL)muted userId:(NSString*)peerId;
-
-
--(void)dotEngine:(DotEngine * _Nonnull)engine didMutedRemoteVideo:(BOOL)muted userId:(NSString*)peerId;
-
-
-
-
-/**
- *  发生错误了
- *
- *  @param engine    engine description
- *  @param errorCode <#errorCode description#>
- */
 -(void)dotEngine:(DotEngine* _Nonnull) engine didOccurError:(DotEngineErrorCode)errorCode;
-
-
-
 
 
 @end
