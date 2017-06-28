@@ -33,17 +33,21 @@
 @property (nonatomic,readonly) BOOL local;
 @property (nonatomic,readonly) BOOL audio;
 @property (nonatomic,readonly) BOOL video;
-@property (nonatomic,readonly) NSString* streamId;
-@property (nonatomic,readonly) NSString* peerId;
-@property (nonatomic,readonly) DotView*  view;
+@property (nonatomic,readonly) NSString* _Nonnull streamId;
+@property (nonatomic,readonly) NSString* _Nullable peerId;
+@property (nonatomic,readonly) DotView* _Nullable view;
 
-@property (nonatomic,weak) id<DotStreamDelegate> delegate;
+@property (nonatomic,weak) id<DotStreamDelegate> _Nullable delegate;
 @property (nonatomic,retain) id<DotVideoCapturer> _Nullable videoCapturer;
 
 
 -(instancetype)initWithAudio:(BOOL)audio video:(BOOL)video;
 
 -(void)setupVideoProfile:(DotEngineVideoProfile)profile;
+
+-(void)setupLocalMedia;
+
+-(void)shutdownLocalMedia;
 
 -(void)switchCamera;
 
