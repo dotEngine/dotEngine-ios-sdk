@@ -222,21 +222,11 @@ typedef NS_ENUM(NSInteger, DotStatus) {
 
 -(void)dotEngine:(DotEngine* _Nonnull) engine didLeave:(NSString* _Nonnull)peerId;
 
-
 -(void)dotEngine:(DotEngine* _Nonnull) engine  stateChange:(DotStatus)state;
-
-
--(void)dotEngine:(DotEngine* _Nonnull) engine didAddLocalStream:(DotStream* _Nonnull)stream;
-
 
 -(void)dotEngine:(DotEngine* _Nonnull) engine didAddRemoteStream:(DotStream* _Nonnull)stream;
 
-
--(void)dotEngine:(DotEngine* _Nonnull) engine didRemoveLocalStream:(DotStream* _Nonnull)stream;
-
-
 -(void)dotEngine:(DotEngine* _Nonnull) engine didRemoveRemoteStream:(DotStream* _Nonnull) stream;
-
 
 -(void)dotEngine:(DotEngine* _Nonnull) engine didOccurError:(DotEngineErrorCode)errorCode;
 
