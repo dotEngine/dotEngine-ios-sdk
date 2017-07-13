@@ -37,11 +37,22 @@
 @property (nonatomic,readonly) NSString* _Nullable peerId;
 @property (nonatomic,readonly) DotView* _Nullable view;
 
+@property (nonatomic,assign) DotEngineVideoProfile  videoProfile;
+
 @property (nonatomic,weak) id<DotStreamDelegate> _Nullable delegate;
+
 @property (nonatomic,retain) id<DotVideoCapturer> _Nullable videoCapturer;
 
 
--(instancetype)initWithAudio:(BOOL)audio video:(BOOL)video;
+
+-(nonnull instancetype)initWithAudio:(BOOL)audio video:(BOOL)video;
+
+
+-(nonnull instancetype)initWithAudio:(BOOL)audio video:(BOOL)video  delegate:(nullable id<DotStreamDelegate>)delegate;
+
+
+-(nonnull instancetype)initWithAudio:(BOOL)audio video:(BOOL)video videoProfile:(DotEngineVideoProfile)profile delegate:(nullable id<DotStreamDelegate> )delegate;
+
 
 -(void)setupVideoProfile:(DotEngineVideoProfile)profile;
 
