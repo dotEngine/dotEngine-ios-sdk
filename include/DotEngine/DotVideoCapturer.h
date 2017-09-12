@@ -1,73 +1,37 @@
 //
-//  DotCapturer.h
+//  DotVideoCapturer.h
+//  dot-engine-ios
 //
-//  Created by xiang on 27/05/2017.
+//  Created by xiang on 18/08/2017.
 //  Copyright © 2017 dotEngine. All rights reserved.
 //
-
 
 #import <Foundation/Foundation.h>
 #import <CoreVideo/CoreVideo.h>
 
-
-typedef NS_ENUM(int, VideoRotation){
+typedef NS_ENUM(NSInteger, VideoRotation){
     
     VideoRoation_0 = 0,
     VideoRoation_90 = 90,
     VideoRoation_180 = 180,
     VideoRoation_270 = 270,
-    
 };
 
 
+
+// DotStream is is DotCapturerConsumer
 @protocol DotCapturerConsumer <NSObject>
 
-
-/**
- <#Description#>
- 
- @param sample_buffer sample_buffer description
- */
--(void) sendSampleBuffer:(CMSampleBufferRef _Nonnull) sampleBuffer rotation:(VideoRotation)rotation;
-
+-(void) gotCVPixelBuffer:(CVPixelBufferRef _Nonnull) sampleBuffer rotation:(VideoRotation)rotation;
 
 @end
 
 
 
-@protocol DotVideoCapturer <NSObject>
+@interface DotVideoCapturer : NSObject
 
+@property(atomic, assign) id<DotCapturerConsumer> _Nullable videoConsumer;
 
-@property(atomic, assign) id<DotCapturerConsumer> _Nullable videoCapturerConsumer;
-
-
--(void)initCapturer;
-
-
-
--(void)releaseCapturer;
-
-
-
--(int32_t)startCapture;
-
-
-
--(int32_t)stopCapture;
-
-
-
--(BOOL)isCaptureStarted;
-
+-(void) sendCVPixelBuffer:(CVPixelBufferRef _Nonnull)pixelBuffer rotation:(VideoRotation)rotation;
 
 @end
-
-
-
-
-
-
-
-
-
-

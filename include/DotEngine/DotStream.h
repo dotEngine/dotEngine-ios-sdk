@@ -10,9 +10,10 @@
 
 #import "DotView.h"
 #import "DotEngine.h"
-#import "DotVideoCapturer.h"
+
 
 @class DotStream;
+@class DotVideoCapturer;
 
 @protocol DotStreamDelegate <NSObject>
 
@@ -37,19 +38,19 @@
 @property (nonatomic,readonly) NSString* _Nullable peerId;
 @property (nonatomic,readonly) DotView* _Nullable view;
 
+@property (nonatomic,assign) float beautyLevel;
+@property (nonatomic,assign) float brightLevel;
+@property (nonatomic,assign) BOOL  useFaceBeauty;
+
 @property (nonatomic,assign) DotEngineVideoProfile  videoProfile;
-
+@property (nonatomic,assign) DotVideoCapturer* _Nullable videoCaptuer;
 @property (nonatomic,weak) id<DotStreamDelegate> _Nullable delegate;
-
-@property (nonatomic,retain) id<DotVideoCapturer> _Nullable videoCapturer;
 
 
 
 -(nonnull instancetype)initWithAudio:(BOOL)audio video:(BOOL)video;
 
-
 -(nonnull instancetype)initWithAudio:(BOOL)audio video:(BOOL)video  delegate:(nullable id<DotStreamDelegate>)delegate;
-
 
 -(nonnull instancetype)initWithAudio:(BOOL)audio video:(BOOL)video videoProfile:(DotEngineVideoProfile)profile delegate:(nullable id<DotStreamDelegate> )delegate;
 
@@ -66,6 +67,7 @@
 
 -(void)muteVideo:(BOOL)muted;
 
+-(void)snapshot:(void (^_Nonnull)(UIImage* _Nullable image))snapshotBlock;
 
 @end
 
