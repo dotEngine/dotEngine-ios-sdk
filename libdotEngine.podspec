@@ -24,5 +24,6 @@ Pod::Spec.new do |s|
     s.requires_arc = true
     s.dependency  'SocketRocket'
     s.dependency  'AFNetworking/Reachability'
+    s.dependency  'GPUImage'
     s.ios.deployment_target = '8.0'
 end
