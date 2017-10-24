@@ -211,6 +211,13 @@ typedef NS_ENUM(NSInteger, DotStatus) {
 
 
 
+-(void)generateTestTokenWithAppKey:( NSString* _Nonnull )appkey
+                         appsecret:(NSString* _Nonnull )appsecret
+                              room:(NSString* _Nonnull )room
+                            userId:(NSString* _Nonnull )userid
+                           testURL:(NSString* _Nonnull) url
+                         withBlock:(void (^_Nonnull)(NSString* token,NSError* error))tokenBlock;
+
 @end
 
 

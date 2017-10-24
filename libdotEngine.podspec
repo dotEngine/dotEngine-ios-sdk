@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'libdotEngine'
-    s.version          = '1.0.7'
+    s.version          = '1.0.9'
     s.summary          = 'dotEngine  realtime audio/video  as a service'
 
 
