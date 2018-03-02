@@ -40,8 +40,9 @@
 
 @property (nonatomic,assign) float beautyLevel;
 @property (nonatomic,assign) float brightLevel;
-@property (nonatomic,assign) BOOL  useFaceBeauty;
+@property (nonatomic,assign) BOOL useFaceBeauty;
 
+@property (nonatomic,readwrite) NSMutableDictionary* _Nonnull attributes;
 @property (nonatomic,assign) DotEngineVideoProfile  videoProfile;
 @property (nonatomic,assign) DotVideoCapturer* _Nullable videoCaptuer;
 @property (nonatomic,weak) id<DotStreamDelegate> _Nullable delegate;

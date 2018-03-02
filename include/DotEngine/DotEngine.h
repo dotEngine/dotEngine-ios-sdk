@@ -193,30 +193,28 @@ typedef NS_ENUM(NSInteger, DotStatus) {
 
 
 
-/**
- 
- use for test mode
+///**
+//
+// use for test mode
+//
+// @param appkey     <#appkey description#>
+// @param appsecret  <#appsecret description#>
+// @param room       <#room description#>
+// @param userid     <#userid description#>
+// @param tokenBlock <#tokenBlock description#>
+// */
+//-(void)generateTestTokenWithAppKey:( NSString* _Nonnull )appkey
+//                         appsecret:(NSString* _Nonnull )appsecret
+//                              room:(NSString* _Nonnull )room
+//                            userId:(NSString* _Nonnull )userid
+//                         withBlock:(void (^_Nonnull)(NSString* token,NSError* error))tokenBlock;
+//
 
- @param appkey     <#appkey description#>
- @param appsecret  <#appsecret description#>
- @param room       <#room description#>
- @param userid     <#userid description#>
- @param tokenBlock <#tokenBlock description#>
- */
--(void)generateTestTokenWithAppKey:( NSString* _Nonnull )appkey
-                         appsecret:(NSString* _Nonnull )appsecret
-                              room:(NSString* _Nonnull )room
-                            userId:(NSString* _Nonnull )userid
-                         withBlock:(void (^_Nonnull)(NSString* token,NSError* error))tokenBlock;
-
-
-
--(void)generateTestTokenWithAppKey:( NSString* _Nonnull )appkey
-                         appsecret:(NSString* _Nonnull )appsecret
-                              room:(NSString* _Nonnull )room
-                            userId:(NSString* _Nonnull )userid
-                           testURL:(NSString* _Nonnull) url
-                         withBlock:(void (^_Nonnull)(NSString* token,NSError* error))tokenBlock;
+-(void)generateTestToken:(NSString* _Nonnull)tokenUrl
+               appsecret:(NSString* _Nonnull )appsecret
+                    room:(NSString* _Nonnull )room
+                  userId:(NSString* _Nonnull )userId
+               withBlock:(void (^_Nonnull)(NSString* token,NSError* error))tokenBlock;
 
 @end
 
