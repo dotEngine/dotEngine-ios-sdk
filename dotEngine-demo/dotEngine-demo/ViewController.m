@@ -18,9 +18,9 @@
 #include <stdlib.h>
 
 
-static  NSString*   APP_SECRET = @"dotEngine_";
+static  NSString*   APP_SECRET = @"dotEngine_secret";
 static  NSString*   ROOM = @"default";
-static  NSString*   TOKEN_URL = @"";
+static NSString*    TOKEN_URL = @"https://dotengine2.dot.cc/api/generateToken";
 
 static  BOOL    USE_CUSTOM_CAPTURE_MODE = false;
 
