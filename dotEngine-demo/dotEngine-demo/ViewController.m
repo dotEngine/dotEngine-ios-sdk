@@ -51,7 +51,11 @@ static  BOOL    USE_CUSTOM_CAPTURE_MODE = false;
     
     _dotEngine = [DotEngine sharedInstanceWithDelegate:self];
     
-    _localStream = [[DotStream alloc] initWithAudio:YES video:YES];
+    _localStream = [[DotStream alloc] initWithAudio:YES
+                                              video:YES
+                                       videoProfile:DotEngine_VideoProfile_240P
+                                           delegate:self];
+    
     
     [_localStream setDelegate:self];
     
@@ -60,6 +64,8 @@ static  BOOL    USE_CUSTOM_CAPTURE_MODE = false;
     // this may block a while
     [_localStream setupLocalMedia];  // for video preview
     
+    
+    _localStream.view.frame = CGRectMake(0, 0, self.view.bounds.size.width/2, self.view.bounds.size.width/2);
     
     self.localVideoView = _localStream.view;
     
@@ -74,7 +80,6 @@ static  BOOL    USE_CUSTOM_CAPTURE_MODE = false;
     self.room = ROOM;
     
     [UIApplication sharedApplication].idleTimerDisabled = YES;
-    
     
     [self.view setNeedsLayout];
 }
@@ -91,13 +96,23 @@ static  BOOL    USE_CUSTOM_CAPTURE_MODE = false;
 }
 
 
+-(void)viewWillLayoutSubviews
+{
+    
+    [super viewWillLayoutSubviews];
+    
+    [self layoutVideoViews];
+    
+}
+
+
+
 -(void)layoutVideoViews
 {
     
     NSMutableArray *videoViews = [NSMutableArray array];
     
     if (self.localVideoView) {
-        
         [videoViews addObject:self.localVideoView];
     }
     
@@ -108,7 +123,6 @@ static  BOOL    USE_CUSTOM_CAPTURE_MODE = false;
         CGRect frame = [self frameAtPosition:i];
         
         ((UIView*)videoViews[i]).frame = frame;
-        ((UIView*)videoViews[i]).contentMode =  UIViewContentModeScaleAspectFill;
         
     }
 }
