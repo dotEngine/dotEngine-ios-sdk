@@ -20,6 +20,9 @@ dotEngine 音视频实时通话SDK. 应用场景一对一通话, 多对多通话
 - 断网重连
 - Simulcast
 - 屏幕共享   **https://github.com/AirCastLab/aircast-ios**
+- 视频录制
+- 支持TCP模式
+
 
 ## 使用
 
